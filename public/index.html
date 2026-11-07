@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hai's Stock Analyzer</title>
+  <meta name="description" content="Hai's Stock Analyzer: free daily technical analysis with moving averages, RSI, MACD, volume, support and resistance, 52-week range and a plain-English verdict.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Hai's Stock Analyzer">
+  <meta property="og:description" content="Free daily stock signals: trend, RSI, MACD, volume, support and resistance, earnings and a plain-English verdict. Not financial advice.">
+  <meta name="theme-color" content="#0f766e">
+  <!-- Google Search Console verification tag goes here -->
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="stylesheet" href="style.css">
+  <script>try { const t = localStorage.getItem("theme"); if (t === '"light"' || t === '"dark"') document.documentElement.dataset.theme = JSON.parse(t); } catch {}</script>
+  <script src="config.js"></script>
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="./" aria-label="Hai's Stock Analyzer home">
+      <img class="logo" src="logo.svg" alt="" width="34" height="34">
+      <span>
+        <h1>Hai's Stock Analyzer</h1>
+        <span class="tag">Daily signals · free data</span>
+      </span>
+    </a>
+    <div class="status">
+      <span id="mode" class="badge">Loading…</span>
+      <span id="updated" class="muted"></span>
+      <button id="theme" class="icon-btn" type="button" title="Theme: auto" aria-label="Change theme">◐</button>
+      <button id="help" class="icon-btn" type="button" title="Keyboard shortcuts" aria-label="Keyboard shortcuts">?</button>
+    </div>
+  </header>
+
+  <div class="notice" role="note">
+    <strong>Not financial advice.</strong> Automated technical signals from free, possibly delayed data. They can be wrong. Do your own research before you trade.
+  </div>
+
+  <div class="layout">
+    <aside class="side">
+      <form id="add" class="add" autocomplete="off">
+        <label for="ticker" class="sr">Add ticker</label>
+        <input id="ticker" placeholder="Add ticker, e.g. NFLX" maxlength="15" spellcheck="false">
+        <button type="submit">Add</button>
+      </form>
+      <p id="addMsg" class="muted small" aria-live="polite"></p>
+
+      <div class="tools">
+        <label for="search" class="sr">Search watchlist</label>
+        <input id="search" type="search" placeholder="Search…  ( / )" spellcheck="false">
+        <label for="sort" class="sr">Sort</label>
+        <select id="sort">
+          <option value="list">My order</option>
+          <option value="score">Score ↓</option>
+          <option value="change">Change % ↓</option>
+          <option value="az">A–Z</option>
+        </select>
+      </div>
+      <div id="filters" class="filters" role="group" aria-label="Filter by verdict"></div>
+      <div id="mix" class="mix" aria-hidden="true"></div>
+      <ul id="list" class="list"></ul>
+    </aside>
+
+    <main id="main" class="main">
+      <div class="empty">Pick a ticker from the watchlist.</div>
+    </main>
+  </div>
+
+  <dialog id="keys" class="keys">
+    <h3>Keyboard shortcuts</h3>
+    <dl class="kv">
+      <dt><kbd>↑</kbd> <kbd>↓</kbd> or <kbd>J</kbd> <kbd>K</kbd></dt><dd>Previous / next ticker</dd>
+      <dt><kbd>/</kbd></dt><dd>Search the watchlist</dd>
+      <dt><kbd>A</kbd></dt><dd>Add a ticker</dd>
+      <dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>Chart range 3M / 6M / 1Y / 2Y</dd>
+      <dt><kbd>R</kbd></dt><dd>Refresh this ticker</dd>
+      <dt><kbd>T</kbd></dt><dd>Change theme</dd>
+    </dl>
+    <form method="dialog"><button>Close</button></form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer class="foot">
+    <p><strong>Disclaimer:</strong> Hai's Stock Analyzer is for education and information only. It is not investment, financial, tax or legal advice, and it is not a recommendation to buy or sell any security. Signals are computed automatically from free public data (Yahoo Finance, Stooq) that may be delayed, incomplete or wrong. Past performance does not predict future results. You are responsible for your own decisions.</p>
+  </footer>
+</body>
+</html>

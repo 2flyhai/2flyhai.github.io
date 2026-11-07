@@ -1,0 +1,7 @@
+node_modules/
+.wrangler/
+.dev.vars
+# Built by scripts/build.js (CI rebuilds it on every deploy)
+public/data/
+public/robots.txt
+public/sitemap.xml

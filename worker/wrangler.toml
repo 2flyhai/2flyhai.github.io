@@ -1,0 +1,7 @@
+name = "stock-analyzer-proxy"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+# Set to your site's origin, e.g. "https://yourname.github.io". "*" allows any site.
+ALLOWED_ORIGIN = "*"

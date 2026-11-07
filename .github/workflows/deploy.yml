@@ -1,0 +1,46 @@
+name: Build data and deploy to GitHub Pages
+
+on:
+  schedule:
+    # Times are UTC. US market closes 16:00 ET = 20:00 UTC (summer) / 21:00 UTC (winter).
+    - cron: "15 22 * * 1-5"        # daily analysis after the close, Mon-Fri
+    - cron: "*/30 14-20 * * 1-5"   # near-live refresh every 30 min in market hours (delete this line to save Actions minutes)
+  workflow_dispatch: {}            # "Run workflow" button
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: pages
+        uses: actions/configure-pages@v5
+      - name: Fetch market data and analyze
+        run: node scripts/build.js
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
