@@ -39,7 +39,7 @@ const site = (process.env.SITE_URL || "").replace(/\/?$/, "/");
 if (site !== "/") {
   await writeFile(path.join(root, "public", "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${site}sitemap.xml\n`);
   await writeFile(path.join(root, "public", "sitemap.xml"),
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${site}</loc><lastmod>${new Date().toISOString().slice(0, 10)}</lastmod><changefreq>daily</changefreq></url>\n</urlset>\n`);
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${site}</loc><lastmod>${new Date().toISOString().slice(0, 10)}</lastmod><changefreq>daily</changefreq></url>\n  <url><loc>${site}terms.html</loc><changefreq>yearly</changefreq></url>\n</urlset>\n`);
   console.log(`Wrote robots.txt and sitemap.xml for ${site}`);
 }
 console.log(`\nWrote ${tickers.length - failures}/${tickers.length} tickers to public/data/`);
