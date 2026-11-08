@@ -43,7 +43,10 @@
     <aside class="side">
       <form id="add" class="add" autocomplete="off">
         <label for="ticker" class="sr">Add ticker</label>
-        <input id="ticker" placeholder="Add ticker, e.g. NFLX" maxlength="15" spellcheck="false">
+        <div class="combo">
+          <input id="ticker" placeholder="Search any stock, e.g. Palantir" maxlength="40" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest">
+          <ul id="suggest" class="suggest" role="listbox" hidden></ul>
+        </div>
         <button type="submit">Add</button>
       </form>
       <p id="addMsg" class="muted small" aria-live="polite"></p>

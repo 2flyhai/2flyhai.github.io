@@ -652,15 +652,69 @@ $("#filters").addEventListener("click", (e) => {
 $("#search").addEventListener("input", (e) => { state.search = e.target.value; renderList(); });
 $("#sort").value = state.sort;
 $("#sort").addEventListener("change", (e) => { state.sort = e.target.value; store.set("sort", state.sort); renderList(); });
+// ---------- ticker search (live: any ticker through /api/search; snapshot: the built list) ----------
+const sug = { items: [], active: -1, timer: null, seq: 0 };
+function showSuggest(items, emptyText) {
+  const ul = $("#suggest"), inp = $("#ticker");
+  sug.items = items; sug.active = items.length ? 0 : -1;
+  ul.innerHTML = items.length
+    ? items.map((x, i) => `<li role="option" id="sg${i}" data-i="${i}" aria-selected="${i === 0}"><b>${esc(x.symbol)}</b><span>${esc(x.name)}</span><small>${esc([x.type, x.exchange].filter(Boolean).join(" · "))}</small></li>`).join("")
+    : emptyText ? `<li class="empty">${esc(emptyText)}</li>` : "";
+  ul.hidden = !ul.innerHTML;
+  inp.setAttribute("aria-expanded", String(!ul.hidden));
+  inp.setAttribute("aria-activedescendant", sug.active >= 0 ? "sg0" : "");
+}
+function hideSuggest() { $("#suggest").hidden = true; $("#ticker").setAttribute("aria-expanded", "false"); sug.items = []; sug.active = -1; }
+function moveSuggest(d) {
+  if (!sug.items.length) return;
+  sug.active = (sug.active + d + sug.items.length) % sug.items.length;
+  $$("#suggest li").forEach((li, i) => li.setAttribute("aria-selected", String(i === sug.active)));
+  $("#sg" + sug.active)?.scrollIntoView({ block: "nearest" });
+  $("#ticker").setAttribute("aria-activedescendant", "sg" + sug.active);
+}
+function pickTicker(sym) {
+  hideSuggest();
+  $("#ticker").value = "";
+  $("#addMsg").textContent = state.api === null && !state.rows[sym] ? "Snapshot mode: only tickers in the daily build have data." : "";
+  select(sym, { add: true });
+}
+async function runSuggest(q) {
+  const my = ++sug.seq;
+  if (!q) return hideSuggest();
+  if (state.api === null) {
+    const ql = q.toLowerCase();
+    const hits = Object.values(state.rows)
+      .filter((r) => r.symbol.toLowerCase().startsWith(ql) || (r.name || "").toLowerCase().includes(ql))
+      .slice(0, 8).map((r) => ({ symbol: r.symbol, name: r.name || "", type: "", exchange: "" }));
+    return showSuggest(hits, "Not in the daily list.");
+  }
+  try {
+    const list = await getJson(apiUrl("api/search?q=" + encodeURIComponent(q)));
+    if (my === sug.seq) showSuggest(list, "No matches. Press Enter to try it as a ticker.");
+  } catch { if (my === sug.seq) hideSuggest(); }
+}
+$("#ticker").addEventListener("input", (e) => {
+  clearTimeout(sug.timer);
+  const q = e.target.value.trim();
+  sug.timer = setTimeout(() => runSuggest(q), 200);
+});
+$("#ticker").addEventListener("keydown", (e) => {
+  if (e.key === "ArrowDown") { e.preventDefault(); moveSuggest(1); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); moveSuggest(-1); }
+  else if (e.key === "Escape") hideSuggest();
+});
+$("#ticker").addEventListener("blur", () => setTimeout(hideSuggest, 150));
+$("#suggest").addEventListener("mousedown", (e) => {
+  const li = e.target.closest("li[data-i]");
+  if (li) { e.preventDefault(); pickTicker(sug.items[+li.dataset.i].symbol); }
+});
 $("#add").addEventListener("submit", (e) => {
   e.preventDefault();
-  const inp = $("#ticker");
-  const s = norm(inp.value);
-  const msg = $("#addMsg");
-  if (!s) { msg.textContent = "Enter a ticker like NFLX, BRK.B or ^GSPC."; return; }
-  msg.textContent = state.api === null ? "Static mode: only tickers in the daily build have data." : "";
-  inp.value = "";
-  select(s, { add: true });
+  clearTimeout(sug.timer);
+  if (sug.active >= 0 && sug.items[sug.active]) return pickTicker(sug.items[sug.active].symbol);
+  const s = norm($("#ticker").value);
+  if (!s) { $("#addMsg").textContent = "Type a company name or a ticker like NFLX, BRK.B or ^GSPC."; return; }
+  pickTicker(s);
 });
 $("#theme").addEventListener("click", cycleTheme);
 $("#help").addEventListener("click", () => $("#keys").showModal());

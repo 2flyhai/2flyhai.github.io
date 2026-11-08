@@ -81,8 +81,8 @@ h1 { font-size: 17px; margin: 0; letter-spacing: -0.01em; }
 .layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 16px; padding: 16px 20px; align-items: start; }
 .side { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; position: sticky; top: 12px; }
 .add { display: flex; gap: 6px; }
-.add input { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); color: var(--text); font: inherit; text-transform: uppercase; }
-.add input::placeholder { text-transform: none; }
+.combo { position: relative; flex: 1; min-width: 0; display: flex; }
+.add input { flex: 1; min-width: 0; width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); color: var(--text); font: inherit; }
 .add button, .seg button { padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
 :root[data-theme="dark"] .add button { color: #04201d; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .add button { color: #04201d; } }
@@ -271,3 +271,12 @@ kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-
 .doc p, .doc li { color: var(--text); }
 .doc ul { padding-left: 20px; }
 .doc a, .foot a { color: var(--accent); }
+
+/* ---------- ticker search ---------- */
+.suggest { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: -64px; margin: 0; padding: 4px; list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); max-height: 320px; overflow-y: auto; }
+.suggest li { display: grid; grid-template-columns: auto 1fr; gap: 0 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.suggest li b { font-weight: 700; }
+.suggest li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suggest li small { grid-column: 1 / 3; color: var(--muted); font-size: 11px; }
+.suggest li[aria-selected="true"], .suggest li:hover { background: var(--panel-2); }
+.suggest .empty { color: var(--muted); cursor: default; display: block; }

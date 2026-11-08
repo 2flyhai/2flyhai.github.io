@@ -1,6 +1,6 @@
 // Optional free Cloudflare Worker: live analysis for any ticker from the hosted site (fixes CORS).
-// Same API as server.js: /api/ping, /api/analyze?t=AAPL. Deploy: see README "Optional: live proxy".
-import { analyzeTicker, normalizeTicker } from "../src/data.js";
+// Same API as server.js: /api/ping, /api/analyze?t=AAPL, /api/search?q=palantir. Deploy: see README "Optional: live proxy".
+import { analyzeTicker, normalizeTicker, searchTickers } from "../src/data.js";
 
 // Set ALLOWED_ORIGIN in wrangler.toml to your site (e.g. https://you.github.io) to stop others using your quota.
 const cors = (env) => ({
@@ -15,6 +15,10 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { headers: h });
     const url = new URL(request.url);
     if (url.pathname === "/api/ping") return new Response(JSON.stringify({ ok: true, live: true }), { headers: h });
+    if (url.pathname === "/api/search") {
+      const list = await searchTickers(url.searchParams.get("q"));
+      return new Response(JSON.stringify(list), { headers: { ...h, "Cache-Control": "public, max-age=3600" } });
+    }
     if (url.pathname !== "/api/analyze") return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers: h });
 
     const t = normalizeTicker(url.searchParams.get("t"));

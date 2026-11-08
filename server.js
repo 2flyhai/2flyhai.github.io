@@ -2,12 +2,13 @@
 //   GET /api/ping              -> {ok:true}
 //   GET /api/watchlist         -> ["SPY", ...]
 //   GET /api/analyze?t=AAPL    -> live analysis payload (cached 60 s per ticker)
+//   GET /api/search?q=palantir -> ticker suggestions [{symbol,name,type,exchange}]
 // Run: node server.js   then open http://localhost:8080   (PORT env var to change)
 import http from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { analyzeTicker, normalizeTicker } from "./src/data.js";
+import { analyzeTicker, normalizeTicker, searchTickers } from "./src/data.js";
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const pub = path.join(root, "public");
@@ -35,6 +36,7 @@ http.createServer(async (req, res) => {
   try {
     if (url.pathname === "/api/ping") return send(res, 200, { ok: true, live: true });
     if (url.pathname === "/api/watchlist") return send(res, 200, await readFile(path.join(root, "watchlist.json"), "utf8"));
+    if (url.pathname === "/api/search") return send(res, 200, await searchTickers(url.searchParams.get("q")));
     if (url.pathname === "/api/analyze") {
       const t = normalizeTicker(url.searchParams.get("t"));
       if (!t) return send(res, 400, { error: "Invalid ticker" });

@@ -203,6 +203,29 @@ export async function fetchEarnings(symbol) {
   };
 }
 
+// Ticker suggestions from Yahoo's free search: "pal" -> PLTR, PAL, ... Stocks, ETFs, funds and indices only.
+const SEARCH_TYPES = new Set(["EQUITY", "ETF", "INDEX", "MUTUALFUND"]);
+export async function searchTickers(q) {
+  const query = String(q || "").trim().slice(0, 40);
+  if (!query) return [];
+  for (const host of YAHOO_HOSTS) {
+    try {
+      const url = `https://${host}/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&listsCount=0&enableFuzzyQuery=false`;
+      const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(6000) });
+      if (!res.ok) continue;
+      const json = await res.json();
+      return (json.quotes || [])
+        .filter((x) => x.symbol && SEARCH_TYPES.has(x.quoteType))
+        .map((x, i) => ({ x, i, us: /^\^?[A-Z]{1,5}(-[A-Z])?$/.test(x.symbol) ? 0 : 1 }))
+        .sort((a, b) => a.us - b.us || a.i - b.i) // US listings first, then Yahoo's order
+        .map(({ x }) => x)
+        .slice(0, 8)
+        .map((x) => ({ symbol: x.symbol, name: x.longname || x.shortname || x.symbol, type: x.typeDisp || x.quoteType, exchange: x.exchDisp || x.exchange || "" }));
+    } catch { /* try the other host */ }
+  }
+  return [];
+}
+
 export async function analyzeTicker(raw) {
   const symbol = normalizeTicker(raw);
   if (!symbol) throw new Error(`Invalid ticker: ${raw}`);

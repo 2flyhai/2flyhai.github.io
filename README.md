@@ -26,6 +26,8 @@ Browsers cannot call these sites directly (CORS), so the data is fetched by Node
 
 ## Using the page
 
+- Type a company name or ticker in the top box. Suggestions appear for any stock, ETF or index (live mode only). In snapshot mode it searches the daily list.
+
 - Search, sort (score, change, A-Z) and filter the watchlist by verdict. Each row has a 30-day sparkline.
 - Hover the chart for that day's open, high, low, close, volume and averages. Turn SMA 20/50/200, support/resistance and volume on or off.
 - Switch the lower pane between RSI and MACD. It scrolls and zooms with the main chart.
